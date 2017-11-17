@@ -2,8 +2,11 @@
 
 import sys
 
-def calc(wage):
-    tax_get = wage - 3500
+def calcSocial(wage):
+    return wage*0.165
+
+def calcTax(wage, social):
+    tax_get = wage - social - 3500
     
     if tax_get <= 0:
         return 0
@@ -26,10 +29,19 @@ def calc(wage):
 if __name__ == "__main__":
     wage = 0
     try:
-        wage = int(sys.argv[1])
+        for arg in sys.argv[1:]:
+            no, wage = arg.split(':')
+
+            try:
+                wage = int(wage)
+            except:
+                print("Parameter Error")
+
+
+            social = calcSocial(wage)
+            tax = calcTax(wage, social)
+
+            pay = wage - social - tax
+            print(no, format(pay, ".2f"), sep=':')
     except:
-        print("Parameter Error")
-
-    tax = calc(wage)
-
-    print(format(tax, ".2f"))
+        print("Calculate Error")
