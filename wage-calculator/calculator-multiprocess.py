@@ -35,7 +35,7 @@ class UserData(object):
         with open(userdatafile, 'r') as file:
         	for line in file:
         		l = line.strip().split(',')
-        		self._userdata[l[0]] = float(l[1])
+        		self._userdata[l[0]] = int(l[1])
     def get_userdata(self):
         return self._userdata
     def calc_insurance(self, wageBefore, JiShuL, JiShuH, rate):
