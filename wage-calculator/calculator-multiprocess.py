@@ -4,12 +4,15 @@ import sys
 from multiprocessing import Process, Queue
 
 class Config(object):
-    def __init__(self, configfile):
+    def __init__(self):
         self._config = {}
+    def set_config(self, configfile):
         with open(configfile, 'r') as file:
         	for line in file:
         		l = line.strip().replace(' ', '').split('=')
         		self._config[l[0]] = float(l[1])
+    def get_configdata(self):
+        return self._config
     def get_config(self, item):
         if 'JiShuH' == item:
             return self._config['JiShuH']
@@ -26,12 +29,15 @@ class Config(object):
                 self._config['GongJiJin']
 
 class UserData(object):
-    def __init__(self, userdatafile):
+    def __init__(self):
         self._userdata = {}
+    def set_userdata(self, userdatafile):
         with open(userdatafile, 'r') as file:
         	for line in file:
         		l = line.strip().split(',')
         		self._userdata[l[0]] = float(l[1])
+    def get_userdata(self):
+        return self._userdata
     def calc_insurance(self, wageBefore, JiShuL, JiShuH, rate):
         if wageBefore < JiShuL:
             return JiShuL * rate
@@ -59,9 +65,9 @@ class UserData(object):
             return tax_get * 0.45 - 13505
     def calculator(self, wageBefore, insurance, tax):
         return wageBefore - insurance - tax
-    def dumptonewdata(self, config):
+    def dumptonewdata(self, userdataData, config):
         newdata = []
-        for key, value in self._userdata.items():
+        for key, value in userdataData.items():
             no = key
             wageBefore = value
             JiShuL = config.get_config('JiShuL')
@@ -84,13 +90,14 @@ class UserData(object):
 queue1 = Queue()
 queue2 = Queue()
 
-def f1():
-    queue1.put(data)
+def f1(userdata, userdatafile):
+    userdata.set_userdata(userdatafile)
+    queue1.put(userdata.get_userdata())
 
-def f2(userdata, config):
-    data = queue1.get()
+def f2(userdata, userdatafile, config):
+    userdataData = queue1.get()
     #newdata
-    newdata = userdata.dumptonewdata(config)
+    newdata = userdata.dumptonewdata(userdataData, config)
     queue2.put(newdata)
     
 
@@ -98,23 +105,25 @@ def f3(outputfile):
     newdata = queue2.get()
     with open(outputfile, 'w') as file:
         for line in newdata:
-            for item in line:
-                file.write(item)
-                file.write(',')
+            sep = ','
+            file.write(str(sep.join(line)))
             file.write('\n')
 
 if __name__ == '__main__':
     args = sys.argv[1:]
 
     index = args.index('-c')
-    config = Config(args[index+1])
+    configfile = args[index+1]
+    config = Config()
+    config.set_config(configfile)
 
     index = args.index('-d')
-    userdata = UserData(args[index+1])
+    userdatafile = args[index+1]
+    userdata = UserData()
 
     index = args.index('-o')
-    output = args[index+1]
+    outputfile = args[index+1]
 
-    # Process(target=f1, args=(, )).start()
-    Process(target=f2, args=(userdata, config)).start()
-    Process(target=f3, args=(output, )).start()
+    Process(target=f1, args=(userdata, userdatafile)).start()
+    Process(target=f2, args=(userdata, userdatafile, config)).start()
+    Process(target=f3, args=(outputfile, )).start()
