@@ -1,6 +1,49 @@
 #!/usr/bin/env python3
 
 import sys
+from collections import namedtuple
+
+IncomeTaxQuickLookupItem = namedtuple(
+    'IncomeTaxQuickLookupItem',
+    ['start_point', 'tax_rate', 'quick_subtractor']
+)
+
+INCOME_TAX_START_POINT = 3500
+
+INCOME_TAX_QUICK_LOOKUP_TABLE = [
+    IncomeTaxQuickLookupItem(80000, 0.45, 13505),
+    IncomeTaxQuickLookupItem(55000, 0.35, 5505),
+    IncomeTaxQuickLookupItem(35000, 0.30, 2755),
+    IncomeTaxQuickLookupItem(9000,  0.25, 1005),
+    IncomeTaxQuickLookupItem(4500,  0.20, 555),
+    IncomeTaxQuickLookupItem(1500,  0.10, 105),
+    IncomeTaxQuickLookupItem(0,     0.03, 0)
+]
+
+class Args(object):
+
+    def __init__(self):
+        self.args = sys.argv[1:]
+
+    def _value_after_option(self, option):
+        try:
+            index = self.args.index(option)
+            return self.args[index + 1]
+        except(ValueError, IndexError):
+            print('Parameter Error')
+            exit()
+
+    @property
+    def config_path(self):
+        return self._value_after_option('-c')
+
+    @property
+    def userdata_path(self):
+        return self._value_after_option('-d')
+
+    @property
+    def export_path(self):
+        return self._value_after_option('-o')
 
 class Config(object):
     def __init__(self, configfile):
@@ -39,23 +82,13 @@ class UserData(object):
         else:
             return wageBefore * rate
     def calc_tax(self, wageBefore, insurance):
-        tax_get = wageBefore - insurance - 3500
+        tax_get = wageBefore - insurance - INCOME_TAX_START_POINT
         if tax_get <= 0:
             return 0
-        elif 0 < tax_get <= 1500:
-            return tax_get * 0.03 - 0
-        elif 1500 < tax_get <= 4500:
-            return tax_get * 0.1 - 105
-        elif 4500 < tax_get <= 9000:
-            return tax_get * 0.2 - 555
-        elif 9000 < tax_get <= 35000:
-            return tax_get * 0.25 - 1005
-        elif 35000 < tax_get <= 55000:
-            return tax_get * 0.3 - 2755
-        elif 55000 < tax_get <= 80000:
-            return tax_get * 0.35 - 5505
-        elif 80000 < tax_get:
-            return tax_get * 0.45 - 13505
+        for item in INCOME_TAX_QUICK_LOOKUP_TABLE:
+            if item.start_point < tax_get:
+                tax = tax_get * item.tax_rate - item.quick_subtractor
+                return tax
     def calculator(self, wageBefore, insurance, tax):
         return wageBefore - insurance - tax
     def dumptofile(self, outputfile, config):
@@ -82,15 +115,14 @@ class UserData(object):
                 file.write('\n')
 
 if __name__ == '__main__':
-    args = sys.argv[1:]
+    args = Args()
+    
+    config_path = args.config_path
+    config = Config(config_path)
 
-    index = args.index('-c')
-    config = Config(args[index+1])
+    userdata_path = args.userdata_path
+    userdata = UserData(userdata_path)
 
-    index = args.index('-d')
-    userdata = UserData(args[index+1])
+    export_path = args.export_path
 
-    index = args.index('-o')
-    output = args[index+1]
-
-    userdata.dumptofile(output, config)
+    userdata.dumptofile(export_path, config)
