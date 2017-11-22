@@ -45,6 +45,7 @@ class Args(object):
     def export_path(self):
         return self._value_after_option('-o')
 
+
 class Config(object):
     def __init__(self, configfile):
         self._config = {}
@@ -66,6 +67,7 @@ class Config(object):
                 self._config['GongShang'] + \
                 self._config['ShengYu'] + \
                 self._config['GongJiJin']
+
 
 class UserData(object):
     def __init__(self, userdatafile):
@@ -114,7 +116,12 @@ class UserData(object):
                 file.write(str(format(wageAfter, ".2f")))
                 file.write('\n')
 
+
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Parameter Error")
+        exit(-1)
+
     args = Args()
     
     config_path = args.config_path
