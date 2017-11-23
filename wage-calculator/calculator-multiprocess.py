@@ -139,14 +139,14 @@ def f1(userdata, userdatafile):
     queue1.put(userdata.get_userdata())
 
 def f2(userdata, userdatafile, config):
-    userdataData = queue1.get()
+    userdataData = queue1.get(timeout=1)
     #newdata
     newdata = userdata.dumptonewdata(userdataData, config)
     queue2.put(newdata)
     
 
 def f3(outputfile):
-    newdata = queue2.get()
+    newdata = queue2.get(timeout=1)
     with open(outputfile, 'w') as file:
         for line in newdata:
             sep = ','
