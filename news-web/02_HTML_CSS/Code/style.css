@@ -1,0 +1,43 @@
+h1, h2 {
+    color:red;
+    font-size:40px;
+}
+
+body {
+    color:green;
+}
+
+li strong {
+    color:red;
+}
+
+#pid a {
+    color:#00755f;
+}
+
+.container {
+    color:red;
+    text-align:center;
+    font-size:20px;
+    font-weight:400;
+}
+
+[title=foo] {
+    color:red;
+}
+
+* {
+    margin:0;
+    padding:0;
+}
+
+.box {
+    width:70px;
+    height:30px;
+    margin:60px;
+
+    border-style:solid;
+    border-width:50px;
+
+    padding:50px;
+}
