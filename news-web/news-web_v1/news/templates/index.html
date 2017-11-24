@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+<h1> Index </h1>
+
+{% block content %}
+{% for title in title_list %}
+<li> {{ title }} </li>
+{% endfor %}
+{% endblock %}
+
