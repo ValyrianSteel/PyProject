@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+<h1>File</h1>
+
+{% block content %}
+<body>
+    <h1> {{ file_item['title'] }} </h1>
+    <p> {{ file_item['created_time'] }} </p>
+    <p> {{ file_item['content'] }} </p>
+</body>
+{% endblock %}
