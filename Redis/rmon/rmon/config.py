@@ -1,9 +1,11 @@
-"""rmon.config
-"""
+""" rmon.config
 
+rmon 配置文件
+"""
 import os
+
 class DevConfig:
-    """DevConfig
+    """开发环境配置
     """
 
     DEBUG = True
@@ -11,9 +13,12 @@ class DevConfig:
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
     TEMPLATES_AUTO_RELOAD = True
 
+
 class ProductConfig(DevConfig):
-    """ProductConfig
+    """生产环境配置
     """
     DEBUG = False
-    path = os.path.join(os.getwd(), 'rmon.db').replace('\\', '/')
+
+    # sqlite 数据库文件路径
+    path = os.path.join(os.getcwd(), 'rmon.db').replace('\\', '/')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % path
